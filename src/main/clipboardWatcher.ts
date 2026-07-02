@@ -39,16 +39,14 @@ let lastImageSig: string | null = null
 let suppressUntil = 0
 let imageBurstUntil = 0
 
-/** sha1 of the raw BGRA bitmap — far cheaper than encoding a PNG every tick. */
 function imageSignature(img: NativeImage = clipboard.readImage()): string | null {
   if (img.isEmpty()) return null
   const { width, height } = img.getSize()
-  // getBitmap()을 쓰는 이유: 워처는 클립보드에 이미지가 있는 동안 500ms마다
+  // toBitmap()을 쓰는 이유: 워처는 클립보드에 이미지가 있는 동안 500ms마다
   // 계속 돈다. toPNG()/toDataURL()은 매 tick마다 이미지를 PNG로 재압축하므로
-  // 스크린샷 같은 큰 이미지에서 CPU를 낭비한다. getBitmap()은 이미 디코딩된 raw
+  // 스크린샷 같은 큰 이미지에서 CPU를 낭비한다. toBitmap()은 이미 디코딩된 raw
   // BGRA 버퍼를 그대로 돌려주므로 인코딩 비용 없이 sha1 해싱만 하면 된다.
-  // (Electron .d.ts가 반환 타입을 void로 잘못 선언해 Buffer로 캐스팅한다.)
-  const bitmap = img.getBitmap() as unknown as Buffer
+  const bitmap = img.toBitmap()
   return `${width}x${height}:${createHash('sha1').update(bitmap).digest('hex')}`
 }
 
