@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+/* The renderer must stay transparent and non-scrolling so the panel window
+   shows the desktop behind everything outside the sliding panel. Tailwind's
+   preflight handles the rest of the reset. */
+html,
+body,
+#root {
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
