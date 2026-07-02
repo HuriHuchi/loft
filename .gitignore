@@ -1,0 +1,26 @@
+# dependencies
+node_modules
+
+# electron-vite build output
+out
+dist
+dist-electron
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# env
+.env
+.env.*
+!.env.example

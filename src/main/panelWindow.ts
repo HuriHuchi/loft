@@ -1,0 +1,75 @@
+import { join } from 'path'
+import { BrowserWindow, screen, shell, type Display } from 'electron'
+import { is } from '@electron-toolkit/utils'
+
+/** Height of the reveal region that slides down from the top of the screen. */
+export const PANEL_HEIGHT = 420
+
+let panel: BrowserWindow | null = null
+
+/**
+ * Create the panel window. It is frameless, transparent, spans the full width
+ * of a display, and floats above the menu bar. It starts hidden — the global
+ * scroll trigger shows it (see trigger.ts). We keep ONE window and re-position
+ * it onto whichever display the cursor is on at reveal time.
+ */
+export function createPanelWindow(): BrowserWindow {
+  const cursorDisplay = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+
+  panel = new BrowserWindow({
+    x: cursorDisplay.bounds.x,
+    y: cursorDisplay.bounds.y,
+    width: cursorDisplay.bounds.width,
+    height: PANEL_HEIGHT,
+    show: false,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    skipTaskbar: true,
+    // acceptFirstMouse lets a click land immediately without first focusing the window
+    acceptFirstMouse: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false
+    }
+  })
+
+  // Float above the menu bar and appear on every Space, including fullscreen apps.
+  panel.setAlwaysOnTop(true, 'screen-saver')
+  panel.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+
+  // External links open in the default browser, not inside the panel.
+  panel.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    panel.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  } else {
+    panel.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+
+  return panel
+}
+
+export function getPanelWindow(): BrowserWindow | null {
+  return panel
+}
+
+/** Snap the panel to the full width of the given display, pinned to its top edge. */
+export function positionOnDisplay(display: Display): void {
+  if (!panel) return
+  panel.setBounds({
+    x: display.bounds.x,
+    y: display.bounds.y,
+    width: display.bounds.width,
+    height: PANEL_HEIGHT
+  })
+}

@@ -1,0 +1,40 @@
+{
+  "name": "unclutter-poc",
+  "version": "0.0.1",
+  "description": "POC: Unclutter-style top slide-down panel for macOS (Electron)",
+  "main": "./out/main/index.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsgo --noEmit -p tsconfig.node.json && tsgo --noEmit -p tsconfig.web.json"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "uiohook-napi"
+    ]
+  },
+  "devDependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
+    "@electron/rebuild": "^4.1.0",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/node": "^26.1.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260701.1",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^43.0.0",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.2",
+    "vite": "^7.3.6"
+  },
+  "dependencies": {
+    "uiohook-napi": "^1.5.5"
+  }
+}
