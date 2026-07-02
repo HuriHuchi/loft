@@ -10,6 +10,9 @@ import {
   hasAccessibilityPermission,
   promptAccessibilityPermission
 } from './trigger'
+import { registerPaneIpc, pushClipboard } from './paneIpc'
+import { startClipboardWatcher, stopClipboardWatcher } from './clipboardWatcher'
+import { clipboardStore, filesStore } from './store'
 
 // Menu-bar app: no dock icon.
 if (process.platform === 'darwin') {
@@ -25,6 +28,10 @@ app.whenReady().then(() => {
   // renderer -> main lifecycle signals
   ipcMain.on('panel:hidden', onRendererHidden) // slide-up animation finished
   ipcMain.on('panel:dismiss', requestHide) // Esc / click-outside from the renderer
+
+  // Pane data: clipboard history + dropped files (persisted under userData).
+  registerPaneIpc()
+  startClipboardWatcher({ onChange: pushClipboard })
 
   if (!hasAccessibilityPermission()) {
     // Trigger the system prompt on first launch; the tray menu also links to it.
@@ -62,4 +69,8 @@ app.on('window-all-closed', () => {})
 
 app.on('will-quit', () => {
   stopGlobalTrigger()
+  stopClipboardWatcher()
+  // Flush any debounced writes so nothing is lost on quit.
+  clipboardStore.flush()
+  filesStore.flush()
 })

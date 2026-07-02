@@ -52,6 +52,9 @@ export function createPanelWindow(): BrowserWindow {
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     panel.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    // 패널은 frameless + showInactive라 F12/메뉴로 DevTools를 열기 어렵다.
+    // dev에서는 렌더러 콘솔(console.log 등)을 볼 수 있게 별도 창으로 자동으로 연다.
+    panel.webContents.openDevTools({ mode: 'detach' })
   } else {
     panel.loadFile(join(__dirname, '../renderer/index.html'))
   }

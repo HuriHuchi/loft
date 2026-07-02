@@ -1,4 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { ClipboardPane } from './components/ClipboardPane'
+import { NotesPane } from './components/NotesPane'
+import { FilesPane } from './components/FilesPane'
 
 /**
  * The panel content. The window itself stays fixed at the top of the screen;
@@ -15,6 +18,7 @@ function App(): React.JSX.Element {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') window.panel.dismiss()
     }
+
     window.addEventListener('keydown', onKey)
 
     return () => {
@@ -44,23 +48,28 @@ function App(): React.JSX.Element {
         open ? 'translate-y-0' : '-translate-y-full'
       ].join(' ')}
     >
-      <Pane title="Clipboard" className="flex-[1] bg-[#3a3a3c] text-neutral-200">
-        <p className="text-sm text-neutral-400">sk</p>
+      <Pane
+        title="Clipboard"
+        className="flex-1 bg-[#3a3a3c] text-neutral-200"
+        headerRight={
+          <button
+            type="button"
+            onClick={() => window.panel.clipboard.clear()}
+            className="text-[11px] opacity-60 transition-opacity hover:opacity-100 cursor-pointer"
+          >
+            Clear
+          </button>
+        }
+      >
+        <ClipboardPane />
       </Pane>
 
       <Pane title="Notes" className="flex-[1.4] bg-neutral-200 text-neutral-800">
-        <div className="h-full" />
+        <NotesPane />
       </Pane>
 
-      <Pane title="Files" last className="flex-[1] bg-[#3a3a3c] text-neutral-200">
-        <div className="mt-2 flex flex-col items-center gap-2">
-          <div className="grid h-14 w-11 place-items-center rounded-sm bg-neutral-700 text-lg">
-            📄
-          </div>
-          <span className="max-w-[9rem] text-center text-xs text-neutral-300">
-            Leanpub Purchase Receipt.pdf
-          </span>
-        </div>
+      <Pane title="Files" last className="flex-1 bg-[#3a3a3c] text-neutral-200">
+        <FilesPane />
       </Pane>
     </div>
   )
@@ -71,19 +80,27 @@ function Pane({
   title,
   className = '',
   last = false,
+  headerRight,
   children
 }: {
   title: string
   className?: string
   last?: boolean
+  headerRight?: ReactNode
   children: ReactNode
 }): React.JSX.Element {
   return (
     <section
       className={`flex min-w-0 flex-col ${last ? '' : 'border-r border-white/10'} ${className}`}
     >
-      <header className="py-1.5 text-center text-xs opacity-60">{title}</header>
-      <div className="flex-1 px-4 py-2.5">{children}</div>
+      <header className="relative py-1.5 text-center text-xs opacity-60">
+        {title}
+        {headerRight && (
+          <div className="absolute inset-y-0 right-2 flex items-center">{headerRight}</div>
+        )}
+      </header>
+      {/* min-h-0 lets the body shrink so its own overflow scrolls instead of the column. */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2.5">{children}</div>
     </section>
   )
 }
