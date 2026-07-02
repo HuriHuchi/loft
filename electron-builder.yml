@@ -59,4 +59,4 @@ dmg:
 publish:
   provider: github
   owner: HuriHuchi
-  repo: unclutter
+  repo: loft
