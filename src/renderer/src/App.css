@@ -10,3 +10,31 @@ body,
   background: transparent;
   overflow: hidden;
 }
+
+/* Neutral, semi-transparent seam color for the thin scrollbar thumb. A single
+   translucent gray reads on both the light Notes pane and the dark panes, so
+   the global scrollbar below needs no per-pane color. */
+:root {
+  --border: rgba(128, 128, 128, 0.4);
+}
+
+/* Minimal scrollbars, applied globally. Chromium here, so `::-webkit-scrollbar`
+   does the real styling; `scrollbar-*` on `*` is the standards fallback. */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
