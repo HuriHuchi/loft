@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const STORAGE_KEY = 'unclutter.notes'
+const STORAGE_KEY = 'loft.notes'
 
 /**
  * A scratch textarea. Notes are renderer-only data, so they live in

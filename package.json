@@ -1,7 +1,8 @@
 {
-  "name": "unclutter-poc",
+  "name": "loft",
+  "productName": "Loft",
   "version": "0.0.1",
-  "description": "POC: Unclutter-style top slide-down panel for macOS (Electron)",
+  "description": "Loft: a top slide-down shelf for macOS to stash clipboard, notes, and files (Electron)",
   "main": "./out/main/index.js",
   "author": "",
   "license": "MIT",

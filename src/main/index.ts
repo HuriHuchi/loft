@@ -20,7 +20,7 @@ if (process.platform === 'darwin') {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.unclutter.poc')
+  electronApp.setAppUserModelId('com.loft.app')
 
   createPanelWindow()
   createTray()

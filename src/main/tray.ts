@@ -18,7 +18,7 @@ export function createTray(): Tray {
   icon.setTemplateImage(true)
 
   tray = new Tray(icon)
-  tray.setToolTip('Unclutter POC')
+  tray.setToolTip('Loft')
   refreshMenu()
   return tray
 }
@@ -30,7 +30,7 @@ export function refreshMenu(): void {
   const active = isRunning()
 
   const menu = Menu.buildFromTemplate([
-    { label: 'Unclutter POC', enabled: false },
+    { label: 'Loft', enabled: false },
     { type: 'separator' },
     {
       label: active
