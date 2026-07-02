@@ -36,9 +36,11 @@ mac:
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
-  # `notarize` is toggled by the CI/env: electron-builder auto-notarizes when
-  # APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID are present.
-  notarize: true
+  # Unsigned distribution for now (no Apple Developer Program). Notarization is
+  # impossible without a Developer ID signature, and leaving it on would fail the
+  # build when no Apple credentials exist. To switch to signed+notarized later:
+  # flip this to `true` and add the CSC_*/APPLE_* secrets — no other changes.
+  notarize: false
 
 dmg:
   # Force the arch into every filename so the two builds never collide and
