@@ -24,6 +24,7 @@ const panelApi = {
   clipboard: {
     list: (): Promise<ClipItem[]> => ipcRenderer.invoke('clipboard:list'),
     copy: (id: string): Promise<void> => ipcRenderer.invoke('clipboard:copy', id),
+    remove: (id: string): Promise<void> => ipcRenderer.invoke('clipboard:remove', id),
     clear: (): Promise<void> => ipcRenderer.invoke('clipboard:clear'),
     /** main -> renderer: history changed. Returns an unsubscribe fn. */
     onChanged: (cb: (items: ClipItem[]) => void): (() => void) => {

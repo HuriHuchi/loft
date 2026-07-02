@@ -29,6 +29,11 @@ export function registerPaneIpc(): void {
     }
   })
 
+  ipcMain.handle('clipboard:remove', (_e, id: string) => {
+    clipboardStore.remove(id)
+    pushClipboard()
+  })
+
   ipcMain.handle('clipboard:clear', () => {
     clipboardStore.clear()
     pushClipboard()

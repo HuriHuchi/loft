@@ -186,6 +186,14 @@ export const clipboardStore = {
     return item.type === 'text' ? { kind: 'text', text: item.text } : { kind: 'image', file: item.file }
   },
 
+  /** Drop a single history entry, cleaning up its PNG if it was an image. */
+  remove(id: string): void {
+    const item = clipStore.get().find((i) => i.id === id)
+    if (!item) return
+    if (item.type === 'image') deleteImageFile(item)
+    clipStore.set(clipStore.get().filter((i) => i.id !== id))
+  },
+
   clear(): void {
     for (const item of clipStore.get()) {
       if (item.type === 'image') deleteImageFile(item)
