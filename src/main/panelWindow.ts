@@ -40,8 +40,13 @@ export function createPanelWindow(): BrowserWindow {
     }
   })
 
-  // Float above the menu bar and appear on every Space, including fullscreen apps.
-  panel.setAlwaysOnTop(true, 'screen-saver')
+  // Float above the menu bar / Dock and appear on every Space, incl. fullscreen.
+  // Level must sit BELOW macOS's drag-session layer (kCGDraggingWindowLevel = 500)
+  // or Finder file drops never reach the window (they fall through to the desktop).
+  // 'screen-saver' (1000) is above 500 → breaks drops. 'pop-up-menu' (101) receives
+  // drops but on recent macOS the Dock floats above 101. So target ~249 via
+  // relativeLevel: above the Dock, still under the 500 drag layer.
+  panel.setAlwaysOnTop(true, 'pop-up-menu', 148)
   panel.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   // External links open in the default browser, not inside the panel.
