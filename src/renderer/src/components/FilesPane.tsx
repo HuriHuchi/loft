@@ -41,13 +41,13 @@ export function FilesPane(): React.JSX.Element {
           Drag files here
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex gap-3">
           {files.map((file) => (
             <div
               key={file.path}
               onDoubleClick={() => window.panel.files.open(file.path)}
               title={file.name}
-              className="group relative flex cursor-default flex-col items-center gap-1.5"
+              className="group relative flex flex-col items-center gap-1.5 px-2 py-3 hover:bg-white/10 rounded-md cursor-pointer"
             >
               <button
                 type="button"
