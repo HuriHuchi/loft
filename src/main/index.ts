@@ -1,14 +1,15 @@
 import { writeFileSync } from 'fs'
 import { app, ipcMain, screen } from 'electron'
 import { electronApp } from '@electron-toolkit/utils'
-import { createPanelWindow, getPanelWindow } from './panelWindow'
+import { createPanelWindow, getPanelWindow, isPointOverPanel } from './panelWindow'
 import { createTray, refreshMenu } from './tray'
 import { reveal, requestHide, onRendererHidden } from './panelController'
 import {
   startGlobalTrigger,
   stopGlobalTrigger,
   hasAccessibilityPermission,
-  promptAccessibilityPermission
+  promptAccessibilityPermission,
+  isPointInMenuBar
 } from './trigger'
 import { registerPaneIpc, pushClipboard } from './paneIpc'
 import { startClipboardWatcher, stopClipboardWatcher } from './clipboardWatcher'
@@ -40,7 +41,11 @@ app.whenReady().then(() => {
 
   startGlobalTrigger({
     onRevealIntent: (display) => reveal(display),
-    onDismissIntent: () => requestHide()
+    // Dismiss on a scroll-up when the cursor is over the panel OR over the menu
+    // bar at the top of the screen. Scrolling up anywhere else is left alone.
+    onDismissIntent: (point) => {
+      if (isPointOverPanel(point) || isPointInMenuBar(point)) requestHide()
+    }
   })
 
   refreshMenu()

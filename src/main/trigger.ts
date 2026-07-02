@@ -15,8 +15,24 @@ const REVEAL_ON_NEGATIVE_ROTATION = false
 export interface TriggerHandlers {
   /** Cursor is pinned to the top edge and the user scrolled in the reveal direction. */
   onRevealIntent: (display: Display) => void
-  /** User scrolled in the opposite direction (used as one dismiss signal). */
-  onDismissIntent: () => void
+  /**
+   * User scrolled in the opposite direction (a dismiss signal). Carries the
+   * cursor position so the consumer can decide whether the cursor is actually
+   * over the panel before acting.
+   */
+  onDismissIntent: (point: { x: number; y: number }) => void
+}
+
+/**
+ * True if the point falls within the macOS menu-bar strip at the top of its
+ * display — the gap between the display's full `bounds` and its usable
+ * `workArea`. Falls back to the top-edge hot zone on displays without a menu bar
+ * (secondary screens report a zero-height gap).
+ */
+export function isPointInMenuBar(point: { x: number; y: number }): boolean {
+  const display = screen.getDisplayNearestPoint(point)
+  const menuBarHeight = Math.max(display.workArea.y - display.bounds.y, HOT_ZONE_PX)
+  return point.y >= display.bounds.y && point.y < display.bounds.y + menuBarHeight
 }
 
 /** True if macOS Accessibility permission is granted (required for global input). */
@@ -95,6 +111,6 @@ function onWheel(e: { direction: number; rotation: number }): void {
   if (atTopEdge && scrollingDown) {
     handlers.onRevealIntent(display)
   } else if (!scrollingDown) {
-    handlers.onDismissIntent()
+    handlers.onDismissIntent(point)
   }
 }
