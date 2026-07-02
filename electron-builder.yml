@@ -38,8 +38,17 @@ mac:
   entitlementsInherit: build/entitlements.mac.plist
   # Unsigned distribution for now (no Apple Developer Program). Notarization is
   # impossible without a Developer ID signature, and leaving it on would fail the
-  # build when no Apple credentials exist. To switch to signed+notarized later:
-  # flip this to `true` and add the CSC_*/APPLE_* secrets — no other changes.
+  # build when no Apple credentials exist.
+  #
+  # TODO: switch to signed + notarized distribution (unlocks Gatekeeper AND
+  #       macOS auto-update, which does NOT work while unsigned). Steps:
+  #         1. Enroll a Developer ID-capable team you own (Apple Developer
+  #            Program, $99/yr) — not a Personal Team, not a previous org's team.
+  #         2. Create a "Developer ID Application" cert; export it as a .p12.
+  #         3. Add repo secrets: CSC_LINK (base64 .p12), CSC_KEY_PASSWORD,
+  #            APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID.
+  #         4. Flip `notarize` below to `true`.
+  #       No other code/config changes needed.
   notarize: false
 
 dmg:
