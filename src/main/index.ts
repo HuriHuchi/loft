@@ -13,7 +13,7 @@ import {
 } from './trigger'
 import { registerPaneIpc, pushClipboard } from './paneIpc'
 import { startClipboardWatcher, stopClipboardWatcher } from './clipboardWatcher'
-import { clipboardStore, filesStore } from './store'
+import { clipboardStore, filesStore, settingsStore } from './store'
 
 // Menu-bar app: no dock icon.
 if (process.platform === 'darwin') {
@@ -81,4 +81,5 @@ app.on('will-quit', () => {
   // Flush any debounced writes so nothing is lost on quit.
   clipboardStore.flush()
   filesStore.flush()
+  settingsStore.flush()
 })

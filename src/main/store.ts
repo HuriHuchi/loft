@@ -58,6 +58,36 @@ class JsonStore<T> {
   }
 }
 
+// ─── Settings store ─────────────────────────────────────────────────────────
+
+/**
+ * UI preferences that survive a restart. `paneWeights` are the three columns'
+ * relative flex-grow values (unitless): the panel spans the full display width,
+ * so only the ratio between them matters, not absolute pixels — which keeps a
+ * saved layout sensible even when revealed on a different-width display.
+ */
+type Settings = { paneWeights: number[] }
+
+const DEFAULT_PANE_WEIGHTS = [1, 1.4, 1]
+
+const settingsData = new JsonStore<Settings>('settings.json', {
+  paneWeights: DEFAULT_PANE_WEIGHTS
+})
+
+export const settingsStore = {
+  paneWeights(): number[] {
+    return settingsData.get().paneWeights
+  },
+
+  setPaneWeights(weights: number[]): void {
+    settingsData.update((s) => ({ ...s, paneWeights: weights }))
+  },
+
+  flush(): void {
+    settingsData.flush()
+  }
+}
+
 // ─── Clipboard store ────────────────────────────────────────────────────────
 
 /** On-disk shapes. Images store a PNG path, never the (large) data URL. */

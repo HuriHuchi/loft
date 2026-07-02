@@ -1,6 +1,6 @@
 import { clipboard, ipcMain, nativeImage, shell } from 'electron'
 import { getPanelWindow } from './panelWindow'
-import { clipboardStore, filesStore } from './store'
+import { clipboardStore, filesStore, settingsStore } from './store'
 import { noteInternalWrite } from './clipboardWatcher'
 
 /** Push the current clipboard history to the renderer. */
@@ -40,6 +40,11 @@ export function registerPaneIpc(): void {
   ipcMain.handle('files:open', (_e, path: string) => {
     shell.openPath(path)
   })
+
+  // Column widths. `get` is a one-shot invoke on mount; `set` is fire-and-forget
+  // (the renderer owns the live value while dragging and only pushes the result).
+  ipcMain.handle('panes:getWidths', () => settingsStore.paneWeights())
+  ipcMain.on('panes:setWidths', (_e, weights: number[]) => settingsStore.setPaneWeights(weights))
 }
 
 export { pushClipboard }

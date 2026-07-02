@@ -46,6 +46,13 @@ const panelApi = {
      * `File.path` is gone under contextIsolation; returns '' for non-file drags.
      */
     getPathForFile: (file: File): string => webUtils.getPathForFile(file)
+  },
+
+  /** Persisted column layout: relative flex-grow weights for the three panes. */
+  panes: {
+    getWidths: (): Promise<number[]> => ipcRenderer.invoke('panes:getWidths'),
+    /** Fire-and-forget; the renderer owns the live value while dragging. */
+    setWidths: (weights: number[]): void => ipcRenderer.send('panes:setWidths', weights)
   }
 }
 
