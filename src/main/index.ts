@@ -14,6 +14,7 @@ import {
 import { registerPaneIpc, pushClipboard } from './paneIpc'
 import { startClipboardWatcher, stopClipboardWatcher } from './clipboardWatcher'
 import { clipboardStore, filesStore, settingsStore } from './store'
+import { initAutoUpdate } from './updater'
 
 // Menu-bar app: no dock icon.
 if (process.platform === 'darwin') {
@@ -52,6 +53,9 @@ app.whenReady().then(() => {
   })
 
   refreshMenu()
+
+  // Check GitHub Releases for a newer version (no-op in dev / unpackaged).
+  initAutoUpdate()
 
   // DEV-ONLY: reveal without a physical scroll so the slide can be exercised and
   // screenshotted in environments where Accessibility permission can't be granted.

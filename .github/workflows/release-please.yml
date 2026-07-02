@@ -1,0 +1,67 @@
+name: Release Please
+
+# Primary release flow. On every push to main, release-please maintains a
+# "release PR" that bumps the version + updates CHANGELOG.md from Conventional
+# Commit messages (feat:, fix:, feat!: …). Merging that PR creates the git tag
+# and GitHub Release; the `publish` job below then builds the macOS app and
+# attaches the .dmg + latest-mac.yml (auto-update feed) to that release.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # Runs only in the same push where the release PR got merged (i.e. a release
+  # was just created). The macOS build has to be its own job because
+  # release-please runs on Linux and electron-builder needs macOS to produce a
+  # signed/notarized .dmg.
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and publish
+        # electron-builder finds the release-please release (tag v<version>, which
+        # matches package.json since release-please bumped it) and uploads assets.
+        run: pnpm release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # ── Code signing (optional) ──────────────────────────────────────
+          # Absent secrets → an UNSIGNED .dmg; the build still succeeds. Add them
+          # in repo Settings → Secrets to enable signing + notarization:
+          #   CSC_LINK / CSC_KEY_PASSWORD / APPLE_ID
+          #   APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

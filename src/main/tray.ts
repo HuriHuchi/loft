@@ -5,6 +5,7 @@ import {
   tryStart,
   isRunning
 } from './trigger'
+import { checkForUpdates } from './updater'
 
 // 16x16 template chevron, embedded so there's no asset-path resolution to worry
 // about between dev and packaged builds. macOS recolors template images for light/dark.
@@ -45,6 +46,14 @@ export function refreshMenu(): void {
         // in-place (no app restart needed).
         pollUntilGranted()
       }
+    },
+    { type: 'separator' },
+    // Manual, quiet update check: only surfaces an OS notification if an update
+    // is found and downloaded (disabled in dev where there's nothing to update).
+    {
+      label: 'Check for Updates Now',
+      enabled: app.isPackaged,
+      click: () => checkForUpdates()
     },
     { type: 'separator' },
     { label: 'Quit', role: 'quit', click: () => app.quit() }

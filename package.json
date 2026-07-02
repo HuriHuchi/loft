@@ -6,11 +6,17 @@
   "main": "./out/main/index.js",
   "author": "",
   "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
-    "typecheck": "tsgo --noEmit -p tsconfig.node.json && tsgo --noEmit -p tsconfig.web.json"
+    "typecheck": "tsgo --noEmit -p tsconfig.node.json && tsgo --noEmit -p tsconfig.web.json",
+    "prepare": "husky",
+    "postinstall": "electron-builder install-app-deps",
+    "build:unpack": "pnpm build && electron-builder --dir",
+    "build:mac": "pnpm build && electron-builder --mac",
+    "release": "pnpm build && electron-builder --mac --publish always"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -20,6 +26,8 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.0",
+    "@commitlint/config-conventional": "^21.2.0",
     "@electron-toolkit/utils": "^4.0.0",
     "@electron/rebuild": "^4.1.0",
     "@tailwindcss/vite": "^4.3.2",
@@ -29,13 +37,16 @@
     "@typescript/native-preview": "7.0.0-dev.20260701.1",
     "@vitejs/plugin-react": "^5.2.0",
     "electron": "^43.0.0",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
+    "husky": "^9.1.7",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "tailwindcss": "^4.3.2",
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "uiohook-napi": "^1.5.5"
   }
 }

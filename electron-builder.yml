@@ -1,0 +1,62 @@
+# electron-builder configuration
+# Docs: https://www.electron.build/configuration/configuration
+appId: com.loft.app
+productName: Loft
+# The compiled output from `electron-vite build` lives in out/. Everything
+# listed here is what gets copied into the app bundle.
+directories:
+  buildResources: build
+files:
+  - out/**
+  - package.json
+  # Exclude source maps and the dev-only renderer HTML tree we don't ship.
+  - '!**/*.map'
+asar: true
+# uiohook-napi ships a native .node addon. If it stays inside the asar archive
+# the runtime require() fails, so it must be unpacked to app.asar.unpacked/.
+asarUnpack:
+  - '**/node_modules/uiohook-napi/**'
+
+# ── macOS ─────────────────────────────────────────────────────────────────
+mac:
+  category: public.app-category.productivity
+  # One separate .dmg per architecture (NOT a merged universal binary):
+  # Loft-<version>-arm64.dmg for Apple Silicon and Loft-<version>-x64.dmg for
+  # Intel. electron-updater serves each installed app the matching arch.
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  # Menu-bar utility: no Dock icon (matches app.dock.hide() in main).
+  extendInfo:
+    LSUIElement: true
+    # uiohook + clipboard watching read input; declare intent for macOS prompts.
+    NSAppleEventsUsageDescription: Loft needs Accessibility access to detect the reveal gesture.
+  # Hardened Runtime + entitlements are required for notarization.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # `notarize` is toggled by the CI/env: electron-builder auto-notarizes when
+  # APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID are present.
+  notarize: true
+
+dmg:
+  # Force the arch into every filename so the two builds never collide and
+  # electron-updater's latest-mac.yml references them unambiguously.
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  # Standard drag-to-Applications layout.
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+# ── Auto-update / publish target ────────────────────────────────────────────
+# Publishing to GitHub Releases. electron-updater reads the same config at
+# runtime to know where to look for new versions.
+publish:
+  provider: github
+  owner: HuriHuchi
+  repo: unclutter

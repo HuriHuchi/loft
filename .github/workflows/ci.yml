@@ -1,0 +1,42 @@
+name: CI
+
+# Fast pre-release gate: runs on every PR and on pushes to main so breakage is
+# caught before a release tag is ever cut. No packaging/signing here — that's
+# release.yml's job (only on tags).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch/PR cancels the in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    # Bundling + typechecking are platform-agnostic, so use the cheap/fast
+    # Linux runner. macOS is reserved for the actual packaging in release.yml.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # --ignore-scripts skips the native rebuild + Electron binary download
+      # (postinstall). typecheck and bundling never load the native addon, so
+      # skipping keeps CI fast and avoids Linux build-toolchain flakiness for a
+      # macOS-only app.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
