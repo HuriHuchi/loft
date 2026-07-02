@@ -1,12 +1,18 @@
 import { createHash } from 'crypto'
-import { clipboard } from 'electron'
+import { existsSync } from 'fs'
+import { basename } from 'path'
+import { clipboard, nativeImage, type NativeImage } from 'electron'
 import { clipboardStore } from './store'
 
 /**
- * Electron exposes no clipboard-change event, so we poll. Each tick reads text
- * first and only inspects the image when text is empty — copying text leaves
- * the image empty and vice versa, so the two branches never fight over the same
- * change.
+ * Electron exposes no clipboard-change event, so we poll. Each tick checks the
+ * image FIRST and only falls back to text when there's no image — copying text
+ * leaves the image empty and vice versa, so the two branches never fight.
+ *
+ * Image-first matters because copying an image *file* (e.g. in Finder) puts
+ * both the image data AND its file path on the clipboard. Checking the image
+ * first lets us capture a single image item and fold the file path into it as a
+ * filename, instead of emitting a separate text item for the path.
  *
  * The tricky part is the re-copy loop: when the user clicks a history item we
  * call `clipboard.writeText/writeImage`, which is itself a clipboard change the
@@ -18,15 +24,23 @@ import { clipboardStore } from './store'
 const DEFAULT_INTERVAL_MS = 500
 /** Ignore captures briefly after we write to the clipboard ourselves. */
 const SUPPRESS_MS = 600
+/**
+ * After capturing an image, swallow other representations of the same copy that
+ * a tool spreads across the next few ticks — e.g. Clop copies the raw image and
+ * its file path separately, landing on different ticks. Wide enough to cover
+ * that lag, narrow enough not to eat a genuinely new copy.
+ */
+const IMAGE_BURST_MS = 1500
+const IMAGE_EXT = /\.(png|jpe?g|gif|bmp|tiff?|webp|heic|heif)$/i
 
 let interval: ReturnType<typeof setInterval> | null = null
 let lastTextSig: string | null = null
 let lastImageSig: string | null = null
 let suppressUntil = 0
+let imageBurstUntil = 0
 
 /** sha1 of the raw BGRA bitmap — far cheaper than encoding a PNG every tick. */
-function imageSignature(): string | null {
-  const img = clipboard.readImage()
+function imageSignature(img: NativeImage = clipboard.readImage()): string | null {
   if (img.isEmpty()) return null
   const { width, height } = img.getSize()
   // getBitmap()을 쓰는 이유: 워처는 클립보드에 이미지가 있는 동안 500ms마다
@@ -38,28 +52,73 @@ function imageSignature(): string | null {
   return `${width}x${height}:${createHash('sha1').update(bitmap).digest('hex')}`
 }
 
-function tick(): void {
-  const text = clipboard.readText()
+/** Basename of the file backing the clipboard image (macOS `public.file-url`). */
+function clipboardFileName(): string | undefined {
+  try {
+    const url = clipboard.read('public.file-url')
+    if (!url) return undefined
+    const path = decodeURIComponent(url.replace(/^file:\/\//, ''))
+    return basename(path) || undefined
+  } catch {
+    return undefined
+  }
+}
 
-  if (text) {
-    if (text !== lastTextSig) {
-      lastTextSig = text
-      lastImageSig = null
-      if (Date.now() >= suppressUntil) {
-        clipboardStore.addText(text)
-        onChangeCb?.()
+/** If `text` is a path to an existing image file, decode it; otherwise null. */
+function imageFromPathText(text: string): NativeImage | null {
+  const p = text.trim()
+  if (!p.startsWith('/') || p.includes('\n') || !IMAGE_EXT.test(p)) return null
+  if (!existsSync(p)) return null
+  const img = nativeImage.createFromPath(p)
+  return img.isEmpty() ? null : img
+}
+
+/** Commit one image item and open a burst window to absorb its other reps. */
+function commitImage(img: NativeImage, name: string | undefined, now: number): void {
+  clipboardStore.addImage(img, name)
+  lastImageSig = imageSignature(img)
+  lastTextSig = clipboard.readText() || null
+  imageBurstUntil = now + IMAGE_BURST_MS
+  onChangeCb?.()
+}
+
+function tick(): void {
+  const now = Date.now()
+  const img = clipboard.readImage()
+
+  if (!img.isEmpty()) {
+    const sig = imageSignature(img)
+    if (sig !== lastImageSig) {
+      // Raw image trailing a just-captured file-path copy → swallow the echo.
+      if (now < imageBurstUntil) {
+        lastImageSig = sig
+        lastTextSig = clipboard.readText() || null
+        return
       }
+      lastImageSig = sig
+      if (now >= suppressUntil) commitImage(img, clipboardFileName(), now)
+      else lastTextSig = clipboard.readText() || null
     }
     return
   }
 
-  // No text on the clipboard — check for an image.
-  const sig = imageSignature()
-  if (sig && sig !== lastImageSig) {
-    lastImageSig = sig
-    lastTextSig = null
-    if (Date.now() >= suppressUntil) {
-      clipboardStore.addImage(clipboard.readImage())
+  // No image on the clipboard — check for text.
+  const text = clipboard.readText()
+  if (text && text !== lastTextSig) {
+    if (now < suppressUntil) {
+      lastTextSig = text
+      return
+    }
+    const pathImg = imageFromPathText(text)
+    if (pathImg) {
+      // A path to an image file: capture it as an image (preview + filename),
+      // not as text. If it's the echo of an image we just grabbed, skip it.
+      lastTextSig = text
+      if (now >= imageBurstUntil) commitImage(pathImg, basename(text.trim()), now)
+    } else {
+      lastTextSig = text
+      lastImageSig = null
+      clipboardStore.addText(text)
       onChangeCb?.()
     }
   }
@@ -78,8 +137,9 @@ export function startClipboardWatcher(opts: ClipboardWatcherOptions): void {
   onChangeCb = opts.onChange
   // Seed the baselines with the current clipboard so we don't capture whatever
   // happened to be there before the app launched.
+  const img = clipboard.readImage()
+  lastImageSig = img.isEmpty() ? null : imageSignature(img)
   lastTextSig = clipboard.readText() || null
-  lastImageSig = lastTextSig ? null : imageSignature()
   interval = setInterval(tick, opts.intervalMs ?? DEFAULT_INTERVAL_MS)
 }
 

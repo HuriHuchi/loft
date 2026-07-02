@@ -69,6 +69,7 @@ type StoredImageClip = {
   file: string
   width: number
   height: number
+  name?: string
 }
 type StoredClipItem = StoredTextClip | StoredImageClip
 
@@ -113,14 +114,14 @@ export const clipboardStore = {
     commitClip({ id: randomUUID(), type: 'text', createdAt: Date.now(), text })
   },
 
-  addImage(img: NativeImage): void {
+  addImage(img: NativeImage, name?: string): void {
     const id = randomUUID()
     const { width, height } = img.getSize()
     const file = join(clipboardImagesDir(), `${id}.png`)
     mkdirSync(clipboardImagesDir(), { recursive: true })
     writeFileSync(file, img.toPNG())
     imageDataUrlCache.set(id, img.toDataURL())
-    commitClip({ id, type: 'image', createdAt: Date.now(), file, width, height })
+    commitClip({ id, type: 'image', createdAt: Date.now(), file, width, height, name })
   },
 
   /** Wire shapes for the renderer (image PNGs resolved to data URLs, cached). */
@@ -142,7 +143,8 @@ export const clipboardStore = {
         createdAt: item.createdAt,
         dataUrl,
         width: item.width,
-        height: item.height
+        height: item.height,
+        name: item.name
       }
     })
   },

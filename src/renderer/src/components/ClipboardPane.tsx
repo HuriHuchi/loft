@@ -26,18 +26,23 @@ export function ClipboardPane(): React.JSX.Element {
             type="button"
             onClick={() => window.panel.clipboard.copy(item.id)}
             title="Click to copy"
-            className="w-full rounded bg-white/5 px-2 py-1.5 text-left transition-colors hover:bg-white/15"
+            className="w-full rounded bg-white/5 px-2 py-1.5 text-left transition-colors hover:bg-white/15 cursor-pointer"
           >
             {item.type === 'text' ? (
               <span className="line-clamp-3 whitespace-pre-wrap break-words text-xs text-neutral-200">
                 {item.text}
               </span>
             ) : (
-              <img
-                src={item.dataUrl}
-                alt="clipboard image"
-                className="max-h-20 w-auto rounded object-contain"
-              />
+              <div className="flex flex-col gap-1">
+                <img
+                  src={item.dataUrl}
+                  alt={item.name ?? 'clipboard image'}
+                  className="max-h-20 w-auto rounded object-contain"
+                />
+                {item.name && (
+                  <span className="truncate text-[11px] text-neutral-400">{item.name}</span>
+                )}
+              </div>
             )}
           </button>
         </li>

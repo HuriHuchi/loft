@@ -24,6 +24,8 @@ export type ImageClipItem = {
   dataUrl: string
   width: number
   height: number
+  /** Filename, when the image was copied from a file (e.g. in Finder). */
+  name?: string
 }
 
 /** One entry in the clipboard history. */
