@@ -71,22 +71,6 @@ export function getPanelWindow(): BrowserWindow | null {
   return panel
 }
 
-/**
- * True if the panel is currently visible and the given screen point falls within
- * its bounds. Uses the live window bounds (not a computed region) so it stays
- * correct across displays and while the window is hidden mid-slide.
- */
-export function isPointOverPanel(point: { x: number; y: number }): boolean {
-  if (!panel || !panel.isVisible()) return false
-  const b = panel.getBounds()
-  return (
-    point.x >= b.x &&
-    point.x < b.x + b.width &&
-    point.y >= b.y &&
-    point.y < b.y + b.height
-  )
-}
-
 /** Snap the panel to the full width of the given display, pinned to its top edge. */
 export function positionOnDisplay(display: Display): void {
   if (!panel) return

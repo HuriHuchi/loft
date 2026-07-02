@@ -28,6 +28,24 @@ function App(): React.JSX.Element {
     }
   }, [])
 
+  // Scroll-up over the panel is a dismiss gesture, but only once the content
+  // under the cursor has nothing left to scroll (overscroll). Walk from the
+  // cursor's element to the nearest vertically scrollable ancestor: if there is
+  // none, or it's already pinned to the top, the upward scroll "escapes" to the
+  // panel and dismisses it. Otherwise the browser scrolls that content normally
+  // — so scrolling within a long list navigates it instead of closing.
+  const handleWheel = (e: React.WheelEvent): void => {
+    if (!open || e.deltaY >= 0) return
+    const target = e.target as HTMLElement | null
+    // A text field under the cursor always owns the scroll: the user is reading
+    // or editing there, so scrolling must never yank the panel away — not even
+    // for a short note that doesn't overflow (which has no scroll to consume and
+    // would otherwise fall straight through to dismiss).
+    if (target?.closest('textarea, input')) return
+    const scrollable = findScrollableAncestor(target)
+    if (!scrollable || scrollable.scrollTop <= 0) window.panel.dismiss()
+  }
+
   // When the slide-UP transition finishes, tell main it's safe to hide the window.
   // Tailwind v4's `translate-y-*` animates the CSS `translate` property (not
   // `transform`), so the finished-property name is 'translate'. Accept both so a
@@ -41,6 +59,7 @@ function App(): React.JSX.Element {
   return (
     <div
       onTransitionEnd={handleTransitionEnd}
+      onWheel={handleWheel}
       className={[
         'flex h-full will-change-transform',
         'shadow-[0_12px_40px_rgba(0,0,0,0.45)]',
@@ -73,6 +92,27 @@ function App(): React.JSX.Element {
       </Pane>
     </div>
   )
+}
+
+/**
+ * Nearest ancestor (inclusive of `start`) that can actually scroll vertically,
+ * or null. "Can scroll" = content overflows AND `overflow-y` allows it; a
+ * `<textarea>` counts inherently since it scrolls its own content regardless of
+ * the computed overflow value. Stops at `<body>`, which never scrolls here.
+ */
+function findScrollableAncestor(start: HTMLElement | null): HTMLElement | null {
+  let el = start
+  while (el && el !== document.body) {
+    // 스크롤이 생겼는지 확인
+    if (el.scrollHeight > el.clientHeight) {
+      const overflowY = getComputedStyle(el).overflowY
+      if (el.tagName === 'TEXTAREA' || overflowY === 'auto' || overflowY === 'scroll') {
+        return el
+      }
+    }
+    el = el.parentElement
+  }
+  return null
 }
 
 /** One column of the panel. Header color/opacity is inherited from the pane. */

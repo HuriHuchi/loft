@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs'
 import { app, ipcMain, screen } from 'electron'
 import { electronApp } from '@electron-toolkit/utils'
-import { createPanelWindow, getPanelWindow, isPointOverPanel } from './panelWindow'
+import { createPanelWindow, getPanelWindow } from './panelWindow'
 import { createTray, refreshMenu } from './tray'
 import { reveal, requestHide, onRendererHidden } from './panelController'
 import {
@@ -41,10 +41,13 @@ app.whenReady().then(() => {
 
   startGlobalTrigger({
     onRevealIntent: (display) => reveal(display),
-    // Dismiss on a scroll-up when the cursor is over the panel OR over the menu
-    // bar at the top of the screen. Scrolling up anywhere else is left alone.
+    // Dismiss on a scroll-up only when the cursor is over the menu bar at the top
+    // of the screen — the mirror of the reveal gesture. Scroll-up over the panel
+    // itself is handled in the renderer (App.tsx), which can tell whether the
+    // content under the cursor still has room to scroll (overscroll) before it
+    // treats the gesture as a dismiss.
     onDismissIntent: (point) => {
-      if (isPointOverPanel(point) || isPointInMenuBar(point)) requestHide()
+      if (isPointInMenuBar(point)) requestHide()
     }
   })
 
