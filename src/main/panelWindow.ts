@@ -3,7 +3,7 @@ import { BrowserWindow, screen, shell, type Display } from 'electron'
 import { is } from '@electron-toolkit/utils'
 
 /** Height of the reveal region that slides down from the top of the screen. */
-export const PANEL_HEIGHT = 560
+export const PANEL_HEIGHT = 480
 
 let panel: BrowserWindow | null = null
 
