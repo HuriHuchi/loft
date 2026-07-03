@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/HuriHuchi/loft/compare/v0.1.3...v0.2.0) (2026-07-03)
+
+
+### Features
+
+* add a note list to the Notes pane ([#8](https://github.com/HuriHuchi/loft/issues/8)) ([7ee5366](https://github.com/HuriHuchi/loft/commit/7ee536616edbe495915246db6a3f3fdf4d5f5b1b))
+
+
+### Bug Fixes
+
+* label notes by their first line in the list ([ce93fcc](https://github.com/HuriHuchi/loft/commit/ce93fcc8b606b1137f1070a346d5dc3909d55aa4))
+
 ## [0.1.3](https://github.com/HuriHuchi/loft/compare/v0.1.2...v0.1.3) (2026-07-03)
 
 
