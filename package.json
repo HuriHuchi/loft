@@ -1,7 +1,7 @@
 {
   "name": "loft",
   "productName": "Loft",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Loft: a top slide-down shelf for macOS to stash clipboard, notes, and files (Electron)",
   "main": "./out/main/index.js",
   "author": "",

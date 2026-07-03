@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/HuriHuchi/loft/compare/v0.1.2...v0.1.3) (2026-07-03)
+
+
+### Bug Fixes
+
+* lower the default panel height to 480 ([c333406](https://github.com/HuriHuchi/loft/commit/c333406ec41aaef4ec0892d0d22405003b5630d1))
+
 ## [0.1.2](https://github.com/HuriHuchi/loft/compare/v0.1.1...v0.1.2) (2026-07-03)
 
 
