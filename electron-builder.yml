@@ -71,3 +71,8 @@ publish:
   provider: github
   owner: HuriHuchi
   repo: loft
+  # release-please creates the GitHub Release as a published (non-draft) release.
+  # electron-builder defaults to publishing as a draft, and refuses to upload to
+  # an existing release of a different type ("existing type not compatible").
+  # Match release-please by publishing directly to the release.
+  releaseType: release
