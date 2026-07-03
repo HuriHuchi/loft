@@ -48,6 +48,7 @@ export function promptAccessibilityPermission(): void {
 let listenerBound = false
 let running = false
 let handlers: TriggerHandlers | null = null
+let permissionWatch: ReturnType<typeof setTimeout> | null = null
 
 /**
  * Bind the wheel listener (once) and attempt to start the global hook.
@@ -88,7 +89,43 @@ export function isRunning(): boolean {
   return running
 }
 
+/**
+ * Watch for Accessibility permission to be granted out-of-band — e.g. the user
+ * flips Loft on in System Settings → Privacy & Security → Accessibility — then
+ * start the hook and run `onStarted` once (used to refresh the tray). No-op if
+ * the hook is already running or a watch is already in flight, so it's safe to
+ * call from both app launch and the tray menu.
+ */
+export function watchForPermission(onStarted: () => void): void {
+  if (running || permissionWatch !== null) return
+
+  // Poll at a fixed 2s cadence for ~2 minutes, then stop. Granting happens out
+  // of band (System Settings), so polling is the only option; 2s balances
+  // responsiveness against a background app spinning a timer. We cap the window
+  // rather than watch forever — if the user never grants, the tray still shows
+  // "Grant Accessibility permission…" and clicking it re-arms this watch.
+  const INTERVAL_MS = 2000
+  const MAX_ATTEMPTS = 60
+
+  let attempts = 0
+  const check = (): void => {
+    permissionWatch = null
+    if (tryStart()) {
+      onStarted()
+      return
+    }
+    if (++attempts >= MAX_ATTEMPTS) return
+    permissionWatch = setTimeout(check, INTERVAL_MS)
+  }
+
+  check()
+}
+
 export function stopGlobalTrigger(): void {
+  if (permissionWatch !== null) {
+    clearTimeout(permissionWatch)
+    permissionWatch = null
+  }
   if (!running) return
   running = false
   uIOhook.stop()

@@ -2,7 +2,7 @@ import { app, Menu, nativeImage, Tray } from 'electron'
 import {
   hasAccessibilityPermission,
   promptAccessibilityPermission,
-  tryStart,
+  watchForPermission,
   isRunning
 } from './trigger'
 import { checkForUpdates } from './updater'
@@ -43,8 +43,8 @@ export function refreshMenu(): void {
       click: () => {
         if (!granted) promptAccessibilityPermission()
         // Once the user flips the toggle in System Settings, start the hook
-        // in-place (no app restart needed).
-        pollUntilGranted()
+        // in-place (no app restart needed) and refresh the menu.
+        watchForPermission(refreshMenu)
       }
     },
     { type: 'separator' },
@@ -59,19 +59,4 @@ export function refreshMenu(): void {
     { label: 'Quit', role: 'quit', click: () => app.quit() }
   ])
   tray.setContextMenu(menu)
-}
-
-/**
- * Poll for the Accessibility grant for a short window; the moment it flips on,
- * start the global hook and refresh the menu. Stops early once running.
- */
-function pollUntilGranted(attempts = 20): void {
-  if (isRunning()) return
-  if (hasAccessibilityPermission()) {
-    tryStart()
-    refreshMenu()
-    return
-  }
-  if (attempts <= 0) return
-  setTimeout(() => pollUntilGranted(attempts - 1), 1000)
 }

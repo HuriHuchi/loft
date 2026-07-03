@@ -7,7 +7,7 @@ import { reveal, requestHide, onRendererHidden } from './panelController'
 import {
   startGlobalTrigger,
   stopGlobalTrigger,
-  hasAccessibilityPermission,
+  watchForPermission,
   promptAccessibilityPermission,
   isPointInMenuBar
 } from './trigger'
@@ -35,12 +35,7 @@ app.whenReady().then(() => {
   registerPaneIpc()
   startClipboardWatcher({ onChange: pushClipboard })
 
-  if (!hasAccessibilityPermission()) {
-    // Trigger the system prompt on first launch; the tray menu also links to it.
-    promptAccessibilityPermission()
-  }
-
-  startGlobalTrigger({
+  const triggerStarted = startGlobalTrigger({
     onRevealIntent: (display) => reveal(display),
     // Dismiss on a scroll-up only when the cursor is over the menu bar at the top
     // of the screen — the mirror of the reveal gesture. Scroll-up over the panel
@@ -51,6 +46,15 @@ app.whenReady().then(() => {
       if (isPointInMenuBar(point)) requestHide()
     }
   })
+
+  // No Accessibility permission yet (common on first launch, and after every
+  // update while the app is only ad-hoc signed — macOS resets the grant). The
+  // hook simply isn't running; the tray stays fully responsive. Prompt once and
+  // watch for the user to flip it on in System Settings, then start in place.
+  if (!triggerStarted) {
+    promptAccessibilityPermission()
+    watchForPermission(refreshMenu)
+  }
 
   refreshMenu()
 
