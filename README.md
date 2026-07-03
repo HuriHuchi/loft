@@ -70,6 +70,36 @@ Loft detects the grant and starts working within a couple of seconds — no rest
 needed. (Because the build is unsigned, macOS resets this permission on each
 update; just toggle it back on.)
 
+<details>
+<summary>🇰🇷 한국어 설치 안내</summary>
+
+1. [**Releases**](https://github.com/HuriHuchi/loft/releases/latest) 페이지에서 칩에 맞는 `.dmg`를 받으세요.
+
+   | 칩 | 파일 |
+   | --- | --- |
+   | Apple Silicon (M1–M4) | `Loft-<버전>-arm64.dmg` |
+   | Intel | `Loft-<버전>-x64.dmg` |
+
+2. `.dmg`를 열고 **Loft**를 Applications로 드래그합니다.
+
+3. 아직 코드 서명 전이라 macOS Gatekeeper가 첫 실행을 막습니다. 설치 후 **한 번만** 아래 명령으로 격리(quarantine) 플래그를 제거하세요.
+
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/Loft.app
+   ```
+
+   > macOS Sequoia(15)부터는 우클릭 → 열기 우회가 막혀서, 위 명령(또는 **시스템 설정 → 개인정보 보호 및 보안 → "확인 없이 열기"**)이 확실한 방법입니다.
+
+### 손쉬운 사용 권한 허용
+
+스크롤로 펼치는 제스처는 전역 입력 훅을 쓰기 때문에 **손쉬운 사용(Accessibility)** 접근이 필요합니다. 첫 실행 시 Loft가 요청하며, 놓쳤다면 수동으로 켜세요.
+
+**시스템 설정 → 개인정보 보호 및 보안 → 손쉬운 사용 → _Loft_ 활성화**
+
+권한을 켜면 몇 초 안에 Loft가 자동으로 인식해 동작합니다(재시작 불필요). 미서명 빌드라 **업데이트할 때마다 이 권한이 초기화**되니 다시 켜주면 됩니다. 또한 서명 전에는 **자동 업데이트가 되지 않으므로** 새 버전은 릴리즈 페이지에서 직접 받아야 합니다.
+
+</details>
+
 ## 🛠️ Build from source
 
 **Prerequisites:** [Node.js](https://nodejs.org) 22+ and [pnpm](https://pnpm.io) 10+.
