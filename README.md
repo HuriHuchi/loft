@@ -22,12 +22,6 @@ your **clipboard history**, a **scratch note**, and a **drag-and-drop file tray*
 Scroll back up (or hit `Esc`) and it tucks away. It never steals focus, so it
 overlays whatever you're working in.
 
-<div align="center">
-
-![Loft — Clipboard, Notes, and Files panes](docs/screenshot.png)
-
-</div>
-
 <div align="center"><img src="docs/demo.gif" alt="Loft reveal demo" width="820"></div>
 
 ## ✨ Features
@@ -135,14 +129,7 @@ Releases are fully automated with
 
 ## 📸 Capturing media
 
-To refresh the panel screenshot, the dev build can snapshot it to a PNG without a
-physical scroll:
-
-```bash
-AUTO_REVEAL=1 CAPTURE_PATH=$PWD/docs/screenshot.png pnpm dev
-```
-
-For the demo GIF, screen-record the reveal gesture (e.g. with
+To refresh the demo GIF, screen-record the reveal gesture (e.g. with
 [Kap](https://getkap.co)), then optimize it before committing so it stays
 git-friendly (the current `docs/demo.gif` is ~4.4 MB, downscaled to 1200px at
 15 fps with ffmpeg):
