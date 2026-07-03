@@ -114,13 +114,17 @@ export function useNotes(): NotesController {
   return { notes, view, activeNote, openList, openNote, createNote, updateActiveBody, deleteNote }
 }
 
+/** Cap the label so a runaway single line can't bloat the list DOM. */
+const TITLE_MAX = 80
+
 /**
- * The label shown for a note in the list.
- * TODO(human)
+ * The one-line label shown for a note in the list: the first non-blank line,
+ * trimmed and length-capped, or a fallback for an empty note.
  */
 function deriveNoteTitle(body: string): string {
-  // TODO(human): turn a note's raw `body` into the one-line label for the list.
-  return body
+  const firstLine = body.split('\n').find((line) => line.trim().length > 0)?.trim()
+  if (!firstLine) return 'Untitled note'
+  return firstLine.length > TITLE_MAX ? `${firstLine.slice(0, TITLE_MAX)}…` : firstLine
 }
 
 /** Compact timestamp for a list row, e.g. "Jul 3, 09:41". */
