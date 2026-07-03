@@ -22,18 +22,23 @@ your **clipboard history**, a **scratch note**, and a **drag-and-drop file tray*
 Scroll back up (or hit `Esc`) and it tucks away. It never steals focus, so it
 overlays whatever you're working in.
 
+<div align="center">
+
+![Loft — Clipboard, Notes, and Files panes](docs/screenshot.png)
+
+</div>
+
 <!--
-  ┌─────────────────────────────────────────────────────────────────────┐
-  │  DEMO — replace this comment with a GIF of the reveal gesture.        │
-  │  Capture a short screen recording of scrolling down at the top edge,  │
-  │  convert to GIF, save as docs/demo.gif, then uncomment the line below.│
-  └─────────────────────────────────────────────────────────────────────┘
+  DEMO — a GIF of the reveal gesture would round this out. Capture a short screen
+  recording of scrolling down at the top edge, save as docs/demo.gif, then
+  uncomment the line below. See "Capturing media".
 -->
 <!-- <div align="center"><img src="docs/demo.gif" alt="Loft reveal demo" width="820"></div> -->
 
 > [!NOTE]
-> **Screenshots & demo GIF wanted.** Drop `docs/screenshot.png` and `docs/demo.gif`
-> into the repo and uncomment the image tags here — see [Capturing media](#-capturing-media).
+> **Demo GIF wanted.** A short recording of the reveal gesture would complete the
+> picture — drop it at `docs/demo.gif` and uncomment the tag above. See
+> [Capturing media](#-capturing-media).
 
 ## ✨ Features
 
