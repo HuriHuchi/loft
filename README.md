@@ -28,17 +28,7 @@ overlays whatever you're working in.
 
 </div>
 
-<!--
-  DEMO — a GIF of the reveal gesture would round this out. Capture a short screen
-  recording of scrolling down at the top edge, save as docs/demo.gif, then
-  uncomment the line below. See "Capturing media".
--->
-<!-- <div align="center"><img src="docs/demo.gif" alt="Loft reveal demo" width="820"></div> -->
-
-> [!NOTE]
-> **Demo GIF wanted.** A short recording of the reveal gesture would complete the
-> picture — drop it at `docs/demo.gif` and uncomment the tag above. See
-> [Capturing media](#-capturing-media).
+<div align="center"><img src="docs/demo.gif" alt="Loft reveal demo" width="820"></div>
 
 ## ✨ Features
 
@@ -145,16 +135,22 @@ Releases are fully automated with
 
 ## 📸 Capturing media
 
-The screenshots/GIF above are placeholders. To capture the panel itself, the dev
-build can snapshot it to a PNG without a physical scroll:
+To refresh the panel screenshot, the dev build can snapshot it to a PNG without a
+physical scroll:
 
 ```bash
 AUTO_REVEAL=1 CAPTURE_PATH=$PWD/docs/screenshot.png pnpm dev
 ```
 
 For the demo GIF, screen-record the reveal gesture (e.g. with
-[Kap](https://getkap.co)) and save it as `docs/demo.gif`. Then uncomment the image
-tags near the top of this file.
+[Kap](https://getkap.co)), then optimize it before committing so it stays
+git-friendly (the current `docs/demo.gif` is ~4.4 MB, downscaled to 1200px at
+15 fps with ffmpeg):
+
+```bash
+ffmpeg -i recording.gif -vf "fps=15,scale=1200:-1:flags=lanczos,palettegen=stats_mode=diff" -y palette.png
+ffmpeg -i recording.gif -i palette.png -lavfi "fps=15,scale=1200:-1:flags=lanczos,paletteuse=dither=bayer:bayer_scale=3" -y docs/demo.gif
+```
 
 ## 🤝 Contributing
 
