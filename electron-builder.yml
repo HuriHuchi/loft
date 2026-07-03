@@ -36,6 +36,12 @@ mac:
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
+  # Ad-hoc sign the bundle ("-" identity). Without a real cert electron-builder
+  # would otherwise skip signing, leaving only the linker's ad-hoc signature with
+  # no sealed resources — macOS then rejects the bundle on a Finder launch with
+  # "code has no resources but signature indicates they must be present".
+  # A proper ad-hoc codesign writes _CodeSignature/CodeResources so the app runs.
+  identity: '-'
   # Unsigned distribution for now (no Apple Developer Program). Notarization is
   # impossible without a Developer ID signature, and leaving it on would fail the
   # build when no Apple credentials exist.
@@ -47,8 +53,8 @@ mac:
   #         2. Create a "Developer ID Application" cert; export it as a .p12.
   #         3. Add repo secrets: CSC_LINK (base64 .p12), CSC_KEY_PASSWORD,
   #            APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID.
-  #         4. Flip `notarize` below to `true`.
-  #       No other code/config changes needed.
+  #         4. Remove the `identity: '-'` line above (use the real cert) and
+  #            flip `notarize` below to `true`.
   notarize: false
 
 dmg:

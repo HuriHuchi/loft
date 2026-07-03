@@ -32,15 +32,14 @@ jobs:
         env:
           # Lets electron-builder create the GitHub Release + upload assets.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Unsigned build: force-skip code signing. Do NOT pass CSC_LINK here —
-          # when the secret is unset it becomes an empty string, which
-          # electron-builder misreads as a cert path and fails with
-          # "<workspace> not a file".
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          # No signing secrets: the app is ad-hoc signed via `mac.identity: '-'`
+          # in electron-builder.yml (so it launches on Apple Silicon). Do NOT add
+          # CSC_LINK as an empty string here — electron-builder misreads it as a
+          # cert path and fails with "<workspace> not a file".
           # TODO(signing): to ship signed + notarized, add repo secrets
           #   CSC_LINK / CSC_KEY_PASSWORD / APPLE_ID /
           #   APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
-          # then replace the line above with these and set notarize: true:
+          # then pass them here (and drop identity: '-', set notarize: true):
           #   CSC_LINK: ${{ secrets.CSC_LINK }}
           #   CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           #   APPLE_ID: ${{ secrets.APPLE_ID }}
