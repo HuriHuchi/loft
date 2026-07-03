@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/HuriHuchi/loft/compare/v0.1.0...v0.1.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* ad-hoc sign the macOS app so it launches unsigned ([a4e0cd3](https://github.com/HuriHuchi/loft/commit/a4e0cd35a75dbf890447a03f7cb02e59e641e586))
+
 ## [0.1.0](https://github.com/HuriHuchi/loft/compare/v0.0.1...v0.1.0) (2026-07-02)
 
 
