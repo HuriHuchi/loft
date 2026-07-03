@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/HuriHuchi/loft/compare/v0.1.1...v0.1.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* auto-recover when Accessibility permission is granted late ([0350384](https://github.com/HuriHuchi/loft/commit/0350384129290576ac5daa86ba4f1c23e5f56adf))
+
 ## [0.1.1](https://github.com/HuriHuchi/loft/compare/v0.1.0...v0.1.1) (2026-07-03)
 
 
