@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ClipboardPane } from './components/ClipboardPane'
-import { NotesPane } from './components/NotesPane'
+import { NotesPane, NotesHeaderRight, useNotes } from './components/NotesPane'
 import { FilesPane } from './components/FilesPane'
 
 /** Fallback ratios until the persisted weights load; mirrors the main default. */
@@ -19,6 +19,7 @@ function App(): React.JSX.Element {
   const [weights, setWeights] = useState<number[]>(DEFAULT_PANE_WEIGHTS)
   const [dragging, setDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const notes = useNotes()
 
   // Load the saved column layout once on mount (the window persists across
   // reveals, so in-session drags stay put; this only restores after a restart).
@@ -113,7 +114,13 @@ function App(): React.JSX.Element {
       ),
       body: <ClipboardPane />
     },
-    { key: 'notes', title: 'Notes', className: 'bg-neutral-200 text-neutral-800', body: <NotesPane /> },
+    {
+      key: 'notes',
+      title: 'Notes',
+      className: 'bg-neutral-200 text-neutral-800',
+      headerRight: <NotesHeaderRight notes={notes} />,
+      body: <NotesPane notes={notes} />
+    },
     { key: 'files', title: 'Files', className: 'bg-[#3a3a3c] text-neutral-200', body: <FilesPane /> }
   ]
 
