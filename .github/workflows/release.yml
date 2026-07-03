@@ -32,20 +32,20 @@ jobs:
         env:
           # Lets electron-builder create the GitHub Release + upload assets.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # ── Code signing (optional) ──────────────────────────────────────
-          # When these secrets are absent, electron-builder logs a warning and
-          # produces an UNSIGNED .dmg — the build still succeeds. Add them in
-          # repo Settings → Secrets to enable signing + notarization:
-          #   CSC_LINK                    base64 of your Developer ID .p12
-          #   CSC_KEY_PASSWORD            password for that .p12
-          #   APPLE_ID                    Apple Developer account email
-          #   APPLE_APP_SPECIFIC_PASSWORD app-specific password for notarization
-          #   APPLE_TEAM_ID               your 10-char Apple Team ID
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Unsigned build: force-skip code signing. Do NOT pass CSC_LINK here —
+          # when the secret is unset it becomes an empty string, which
+          # electron-builder misreads as a cert path and fails with
+          # "<workspace> not a file".
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          # TODO(signing): to ship signed + notarized, add repo secrets
+          #   CSC_LINK / CSC_KEY_PASSWORD / APPLE_ID /
+          #   APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
+          # then replace the line above with these and set notarize: true:
+          #   CSC_LINK: ${{ secrets.CSC_LINK }}
+          #   CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          #   APPLE_ID: ${{ secrets.APPLE_ID }}
+          #   APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          #   APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Upload artifacts (also kept on the workflow run)
         uses: actions/upload-artifact@v7
